@@ -30,3 +30,8 @@ node_modules/
 # OS generated files
 Thumbs.db
 .DS_Store
+
+# Database and cache files
+mysql/data/
+redis/data/
+*.sock

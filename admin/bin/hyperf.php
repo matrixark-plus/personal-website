@@ -1,32 +1,29 @@
 #!/usr/bin/env php
 <?php
-
-ini_set('display_errors', 'stderr');
-ini_set('log_errors', 1);
-ini_set('error_log', 'php://stderr');
-
-use Hyperf\Contract\ApplicationInterface;
-use Hyperf\Di\ClassLoader;
-use Psr\Container\ContainerInterface;
-
-/*
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
+ini_set('display_errors', 'on');
+ini_set('display_startup_errors', 'on');
+ini_set('memory_limit', '1G');
 
-ini_set('display_errors', 'stderr');
+error_reporting(E_ALL);
 
-$classLoader = require_once __DIR__ . '/../vendor/autoload.php';
+! defined('BASE_PATH') && define('BASE_PATH', dirname(__DIR__, 1));
+require BASE_PATH . '/vendor/autoload.php';
+! defined('SWOOLE_HOOK_FLAGS') && define('SWOOLE_HOOK_FLAGS', Hyperf\Engine\DefaultOption::hookFlags());
 
-if (file_exists(__DIR__ . '/../.env')) {
-    (new \Dotenv\Dotenv(__DIR__ . '/../'))->load();
-}
+// Self-called anonymous function that creates its own scope and keep the global namespace clean.
+(function () {
+    Hyperf\Di\ClassLoader::init();
+    /** @var Psr\Container\ContainerInterface $container */
+    $container = require BASE_PATH . '/config/container.php';
 
-\Hyperf\Coroutine\run(function () use ($classLoader) {
-    /** @var ContainerInterface $container */
-    $container = require __DIR__ . '/../config/container.php';
-
-    /** @var ApplicationInterface $application */
-    $application = $container->get(ApplicationInterface::class);
+    $application = $container->get(Hyperf\Contract\ApplicationInterface::class);
     $application->run();
-});
+})();

@@ -1,91 +1,103 @@
 # 个人网站项目
 
-这是一个现代化的个人网站项目，包含前端用户界面、后端API服务和后台管理系统。
+## 项目概述
+本项目是一个现代化的个人网站，使用前后端分离架构，包含博客、笔记、作品集等核心功能模块。
+
+## 技术架构
+
+### 前端技术栈
+- **框架**：Next.js 14
+- **语言**：JavaScript/TypeScript
+- **状态管理**：React Context/SWR
+- **UI组件库**：（根据需要选择）
+
+### 后端技术栈
+- **框架**：Hyperf（基于Swoole的协程框架）
+- **语言**：PHP 8.1+
+- **数据库**：MySQL 8.0
+- **缓存**：Redis 7
+- **API规范**：RESTful API
+
+## 本地开发环境
+
+### 混合开发环境设置
+
+#### 开发环境组成
+- **后端服务**：Docker容器运行（Hyperf）
+- **数据库服务**：Docker容器运行（MySQL）
+- **缓存服务**：Docker容器运行（Redis）
+- **后台管理系统**：Docker容器运行（Hyperf-admin）
+- **前端服务**：本地直接运行（Next.js）
+
+#### 前置要求
+- Docker 和 Docker Compose
+- Node.js 16+
+- PHP 8.1+（本地安装可选，主要使用容器内的PHP）
+
+### 环境设置步骤
+
+#### 1. 克隆项目
+```bash
+git clone <项目仓库地址>
+cd mysite
+```
+
+#### 2. 后端环境设置
+```bash
+# 进入后端目录
+cd backend
+
+# 启动Docker容器服务（包括后端API和后台管理系统）
+docker-compose up -d
+
+# 安装PHP依赖（如果需要本地开发）
+composer install
+```
+
+#### 3. 前端环境设置
+```bash
+# 返回项目根目录
+cd ..
+
+# 进入前端目录
+cd frontend
+
+# 安装Node.js依赖
+npm install
+
+# 启动本地开发服务器
+npm run dev
+```
+
+#### 4. 访问应用
+- 前端：http://localhost:3000
+- 后端API：http://localhost:9501
+- 后台管理系统：http://localhost:9502
+
+### 开发注意事项
+- 前端代码修改会自动刷新（本地开发服务器支持热重载）
+- 后端代码修改会在容器内自动重启（Hyperf热重载）
+- 后台管理系统代码修改会在容器内自动重启（Hyperf热重载）
+- 数据库变更需创建迁移文件并执行
 
 ## 项目结构
+- `backend/`：Hyperf后端代码
+- `frontend/`：Next.js前端代码
+- `admin/`：Hyperf后台管理系统代码
+- `docs/`：项目文档
 
-```
-.
-├── backend/              # 后端API服务 (Hyperf框架)
-├── frontend/             # 前端用户界面 (Next.js)
-├── admin/                # 后台管理系统 (Hyperf-admin)
-├── docker/               # Docker配置文件
-└── docs/                 # 项目文档
-```
+## 核心功能模块
+- 首页：个人简介、最新博客、精选作品展示
+- 博客：文章发布、分类、标签、评论
+- 笔记：个人知识管理
+- 作品集：项目展示
+- 联系：联系表单和信息
+- 管理：后台管理系统（Docker容器运行）
+- 分析：用户行为分析
 
-## 技术栈
+## 部署
+### 开发环境
+混合环境：后端和数据库使用Docker容器，前端本地运行
 
-- **前端用户界面**: Next.js 14 (App Router)
-- **后台管理系统**: Hyperf框架
-- **后端API服务**: Hyperf框架
-- **数据库**: MySQL 8.0
-- **缓存**: Redis 7
-- **部署**: Docker + Docker Compose
-
-## 本地开发环境搭建
-
-### 环境要求
-
-- Docker
-- Docker Compose
-
-### 启动开发环境
-
-```bash
-# 进入docker目录
-cd docker
-
-# 启动所有服务
-docker-compose up -d
-```
-
-服务启动后可以通过以下地址访问：
-
-- 前端用户界面: http://localhost:3000
-- 后端API服务: http://localhost:9501
-- 后台管理系统: http://localhost:9502
-- MySQL数据库: localhost:3306
-- Redis缓存: localhost:6379
-
-### 停止开发环境
-
-```bash
-# 停止所有服务
-docker-compose down
-```
-
-## 各模块说明
-
-### 后端API服务 (backend/)
-
-基于Hyperf框架构建的RESTful API服务，提供博客、作品、笔记等核心功能的API接口。
-
-### 前端用户界面 (frontend/)
-
-基于Next.js构建的现代化用户界面，包含首页、博客、作品、笔记等页面。
-
-### 后台管理系统 (admin/)
-
-基于Hyperf-admin构建的后台管理系统，用于管理网站内容和用户。
-
-## 开发指南
-
-### 后端开发
-
-1. 进入backend目录
-2. 安装PHP依赖: `composer install`
-3. 复制环境配置: `cp .env.example .env`
-4. 启动开发服务器: `php ./bin/hyperf.php start`
-
-### 前端开发
-
-1. 进入frontend目录
-2. 安装Node.js依赖: `npm install`
-3. 启动开发服务器: `npm run dev`
-
-### 后台管理开发
-
-1. 进入admin目录
-2. 安装PHP依赖: `composer install`
-3. 复制环境配置: `cp .env.example .env`
-4. 启动开发服务器: `php ./bin/hyperf.php start`
+### 生产环境
+ECS单机部署模式，所有服务在同一台服务器上运行
