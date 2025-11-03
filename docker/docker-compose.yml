@@ -1,0 +1,110 @@
+version: "3.8"
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: personal_website_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: personal_website
+      MYSQL_USER: developer
+      MYSQL_PASSWORD: devpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: personal_website_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # 后端API服务
+  backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    container_name: personal_website_backend
+    restart: always
+    ports:
+      - "9501:9501"
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - ../backend:/app
+    environment:
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+    working_dir: /app
+    command: >
+      bash -c "
+        if [ ! -d 'vendor' ]; then
+          composer install;
+        fi &&
+        php ./bin/hyperf.php start
+      "
+
+  # 后台管理系统
+  admin:
+    build:
+      context: .
+      dockerfile: admin.Dockerfile
+    container_name: personal_website_admin
+    restart: always
+    ports:
+      - "9502:9501"
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - ../admin:/app
+    environment:
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+    working_dir: /app
+    command: >
+      bash -c "
+        if [ ! -d 'vendor' ]; then
+          composer install;
+        fi &&
+        php ./bin/hyperf.php start
+      "
+
+  # 前端用户界面
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    container_name: personal_website_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ../frontend:/app
+    working_dir: /app
+    command:
+      - /bin/sh
+      - -c
+      - |
+        if [ ! -d "node_modules" ]; then
+          npm install
+        fi
+        if ! command -v next &> /dev/null; then
+          npm install next
+        fi
+        npm run dev
+
+volumes:
+  mysql_data:
+  redis_data:
