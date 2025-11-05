@@ -13,9 +13,12 @@
     "license": "Apache-2.0",
     "require": {
         "php": ">=8.0",
+        "96qbhy/hyperf-auth": "*",
+        "96qbhy/simple-jwt": "^v1.4.0",
         "hyperf/cache": "~3.0.0",
         "hyperf/command": "~3.0.0",
         "hyperf/config": "~3.0.0",
+        "hyperf/database": "~3.0.0",
         "hyperf/db-connection": "~3.0.0",
         "hyperf/engine": "^2.10",
         "hyperf/framework": "~3.0.0",
@@ -24,13 +27,18 @@
         "hyperf/logger": "~3.0.0",
         "hyperf/memory": "~3.0.0",
         "hyperf/process": "~3.0.0",
-        "hyperf/database": "~3.0.0",
+        "hyperf/rate-limit": "^3.0",
         "hyperf/redis": "~3.0.0",
-        "hyperf/tracer": "~3.0.0"
+        "hyperf/tracer": "~3.0.0",
+        "yurunsoft/yurun-oauth-login": "*"
+    },
+    "conflict": {
+        "96qbhy/simple-jwt": ">=v1.5"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
         "hyperf/devtool": "~3.0.0",
+        "hyperf/ide-helper": "*",
         "hyperf/testing": "~3.0.0",
         "mockery/mockery": "^1.0",
         "phpstan/phpstan": "^1.0",
@@ -66,7 +74,7 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
         "post-autoload-dump": [
-            "rm -rf runtime/container"
+            "@php -r \"file_exists('runtime/container') && array_map('unlink', glob('runtime/container/*.*'));\""
         ],
         "test": "co-phpunit --prepend test/bootstrap.php -c phpunit.xml --colors=always",
         "cs-fix": "php-cs-fixer fix $1",

@@ -11,5 +11,8 @@ declare(strict_types=1);
  */
 return [
     'http' => [
+        App\Middleware\CorsMiddleware::class,
+        App\Middleware\RequestLogMiddleware::class,
+        App\Middleware\JwtAuthMiddleware::class,
     ],
 ];

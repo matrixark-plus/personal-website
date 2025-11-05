@@ -39,6 +39,8 @@ services:
       - "yes"
 
   backend:
+    mem_limit: 2048m
+    cpus: 1.5
     build:
       context: ./backend
       dockerfile: Dockerfile

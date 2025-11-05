@@ -12,4 +12,10 @@ declare(strict_types=1);
 return [
     Hyperf\ExceptionHandler\Listener\ErrorExceptionHandler::class,
     Hyperf\Command\Listener\FailToHandleListener::class,
+    
+    // 新评论事件监听器
+    [
+        'event' => App\Event\NewCommentEvent::class,
+        'listener' => App\Listener\NewCommentListener::class,
+    ],
 ];

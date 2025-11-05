@@ -32,7 +32,7 @@
 #### 成功响应
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": { ... }
 }
@@ -51,7 +51,7 @@
 
 | 错误码 | 描述 |
 | :--- | :--- |
-| 0 | 成功 |
+| 200 | 成功 |
 | 400 | 请求参数错误 |
 | 401 | 未授权 |
 | 403 | 权限不足 |
@@ -83,7 +83,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "user_id": 1,
@@ -111,7 +111,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "user_id": 1,
@@ -134,7 +134,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "id": 1,
@@ -168,7 +168,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "id": 1,
@@ -196,7 +196,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "user_id": 1,
@@ -229,7 +229,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "total": 100,
@@ -269,7 +269,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "id": 1,
@@ -317,7 +317,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "id": 1,
@@ -344,7 +344,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "total": 50,
@@ -382,7 +382,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "id": 1,
@@ -410,12 +410,13 @@
   - `limit`: 每页数量，默认20
   - `post_id`: 关联ID（博客或作品ID）
   - `post_type`: 关联类型（blog/work）
+  - `include_pending`: 是否包含待审核评论（可选，默认false，仅管理员可设置为true）
 
 ##### 响应信息
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "total": 100,
@@ -430,7 +431,8 @@
         "content": "string",
         "parent_id": null,
         "replies": [],
-        "created_at": "datetime"
+        "created_at": "datetime",
+        "status": 1 // 1已审核通过，仅对管理员可见
       }
     ]
   }
@@ -449,7 +451,7 @@
   "post_id": 1,
   "post_type": "blog",
   "parent_id": null (可选，回复评论时填写),
-  "content": "string"
+  "content": "string" // 限制1000个中文字符
 }
 ```
 
@@ -457,12 +459,156 @@
 - **成功**:
 ```json
 {
-  "code": 0,
-  "message": "success",
+  "code": 200,
+  "message": "评论提交成功，等待审核",
   "data": {
     "id": 1,
     "content": "string",
-    "created_at": "datetime"
+    "created_at": "datetime",
+    "status": 0 // 0待审核
+  }
+}
+```
+
+#### 4.4.3 获取待审核评论列表（管理员）
+
+##### 请求信息
+- **URL**: `/api/v1/comment/pending`
+- **方法**: `GET`
+- **Headers**: `Authorization: Bearer {token}`
+- **查询参数**:
+  - `page`: 页码，默认1
+  - `limit`: 每页数量，默认20
+  - `post_type`: 关联类型（可选，blog/work）
+
+##### 响应信息
+- **成功**:
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "total": 10,
+    "page": 1,
+    "limit": 20,
+    "items": [
+      {
+        "id": 1,
+        "user_id": 1,
+        "username": "string",
+        "avatar": "string",
+        "content": "string",
+        "post_id": 1,
+        "post_type": "blog",
+        "post_title": "文章标题",
+        "parent_id": null,
+        "created_at": "datetime"
+      }
+    ]
+  }
+}
+```
+
+#### 4.4.4 审核评论（管理员）
+
+##### 请求信息
+- **URL**: `/api/v1/comment/approve`
+- **方法**: `POST`
+- **Headers**: `Authorization: Bearer {token}`
+- **请求体**:
+```json
+{
+  "comment_id": 1 // 单个评论ID
+}
+```
+
+##### 响应信息
+- **成功**:
+```json
+{
+  "code": 200,
+  "message": "评论审核通过",
+  "data": {
+    "id": 1,
+    "status": 1
+  }
+}
+```
+
+#### 4.4.5 批量审核评论（管理员）
+
+##### 请求信息
+- **URL**: `/api/v1/comment/batch-approve`
+- **方法**: `POST`
+- **Headers**: `Authorization: Bearer {token}`
+- **请求体**:
+```json
+{
+  "comment_ids": [1, 2, 3] // 评论ID数组
+}
+```
+
+##### 响应信息
+- **成功**:
+```json
+{
+  "code": 200,
+  "message": "批量审核成功",
+  "data": {
+    "approved_count": 3
+  }
+}
+```
+
+#### 4.4.6 拒绝评论（管理员）
+
+##### 请求信息
+- **URL**: `/api/v1/comment/reject`
+- **方法**: `POST`
+- **Headers**: `Authorization: Bearer {token}`
+- **请求体**:
+```json
+{
+  "comment_id": 1, // 单个评论ID
+  "reason": "string" // 拒绝原因（可选）
+}
+```
+
+##### 响应信息
+- **成功**:
+```json
+{
+  "code": 200,
+  "message": "评论已拒绝",
+  "data": {
+    "id": 1,
+    "status": 2
+  }
+}
+```
+
+#### 4.4.7 批量拒绝评论（管理员）
+
+##### 请求信息
+- **URL**: `/api/v1/comment/batch-reject`
+- **方法**: `POST`
+- **Headers**: `Authorization: Bearer {token}`
+- **请求体**:
+```json
+{
+  "comment_ids": [1, 2, 3], // 评论ID数组
+  "reason": "string" // 拒绝原因（可选）
+}
+```
+
+##### 响应信息
+- **成功**:
+```json
+{
+  "code": 200,
+  "message": "批量拒绝成功",
+  "data": {
+    "rejected_count": 3
   }
 }
 ```
@@ -485,7 +631,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "订阅成功，请查收验证邮件",
   "data": null
 }
@@ -512,7 +658,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "提交成功，我们会尽快与您联系",
   "data": null
 }
@@ -533,7 +679,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "shareable_platforms": ["wechat", "weibo", "twitter", "facebook"],
@@ -562,7 +708,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "total": 20,
@@ -595,7 +741,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "root": {
@@ -662,7 +808,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "邮件发送成功",
   "data": null
 }
@@ -684,7 +830,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "验证码已发送，请注意查收",
   "data": null
 }
@@ -705,7 +851,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "total_visits": 1000,
@@ -739,7 +885,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "success",
   "data": {
     "site_name": "个人网站",
@@ -772,7 +918,7 @@
 - **成功**:
 ```json
 {
-  "code": 0,
+  "code": 200,
   "message": "配置更新成功",
   "data": null
 }
@@ -786,7 +932,8 @@
 | 博客文章 | 列表/详情 | 列表/详情 | 全部(增删改查) |
 | 作品集 | 列表/详情 | 列表/详情 | 全部(增删改查) |
 | 笔记 | 只读 | 只读 | 全部(增删改查) |
-| 评论 | 列表 | 列表/发表 | 全部(审核/删除) |
+| 评论 | 列表(仅已审核) | 列表(仅已审核)/发表 | 全部(审核/删除/查看待审核) |
+| 评论审核 | 否 | 否 | 是(待审核列表/审核/拒绝/批量操作) |
 | RSS订阅 | 全部 | 全部 | 全部 |
 | 联系表单 | 提交 | 提交 | 管理 |
 | 脑图管理 | 只读 | 只读 | 全部(增删改查) |
